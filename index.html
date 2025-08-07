@@ -45,7 +45,7 @@
     </div>
   </section>
 
-  <!-- TATTOOS (desplegable como Sobre mí) -->
+  <!-- TATTOOS (desplegable) -->
   <section class="text-center px-4 pb-10 space-y-4">
     <h2 onclick="toggleSection('tattoosSection')" class="text-2xl font-semibold cursor-pointer">Tattoos</h2>
     <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6">
@@ -59,7 +59,6 @@
     </div>
   </section>
 
-
   <!-- ENLACES DESPLEGABLES -->
   <section class="text-center px-4 pb-10 space-y-4 mt-10">
     <h2 onclick="toggleSection('flashSheets')" class="text-2xl font-semibold cursor-pointer">Flash sheets</h2>
@@ -69,7 +68,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- CONTACTO -->
   <section id="contacto" class="px-6 py-10 text-center">
@@ -88,37 +86,59 @@
   <script>
     function toggleSection(id) {
       const section = document.getElementById(id);
+      const wasOpen = section.classList.contains('open');
       section.classList.toggle('open');
+
+      // Si es la primera vez que se abre "tattoosSection", carga imágenes
+      if (!wasOpen && id === 'tattoosSection' && currentIndex === 0) {
+        loadMoreImages();
+      }
     }
 
     // Galería dinámica
-    const totalImages = 465; // cámbialo según la cantidad real de imágenes
+    const totalImages = 465; // Actualiza este número si cambian las imágenes disponibles
     const imagesPerPage = 25;
-    let currentIndex = 1;
+    let currentIndex = 0;
 
-    function loadMoreImages() {
+    function loadImages(from, to) {
       const gallery = document.getElementById("gallery");
-      const maxToLoad = Math.min(currentIndex + imagesPerPage - 1, totalImages);
 
-      for (let i = currentIndex; i <= maxToLoad; i++) {
+      for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
         img.src = `tattoos/${i}.jpg`;
         img.alt = `Tattoo ${i}`;
         img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
+    }
 
-      currentIndex = maxToLoad + 1;
+    function loadMoreImages() {
+      const from = currentIndex + 1;
+      const to = currentIndex + imagesPerPage;
+      loadImages(from, to);
+      currentIndex = to;
 
-      if (currentIndex > totalImages) {
+      if (currentIndex > imagesPerPage) {
+        document.getElementById("showLess").classList.remove("hidden");
+      }
+
+      if (currentIndex >= totalImages) {
         document.getElementById("loadMore").style.display = "none";
       }
     }
 
-    // Carga inicial
-    window.addEventListener("DOMContentLoaded", () => {
-      loadMoreImages();
-    });
+    function showLessImages() {
+      const gallery = document.getElementById("gallery");
+      const images = gallery.querySelectorAll("img");
+
+      images.forEach((img, index) => {
+        if (index >= imagesPerPage) img.remove();
+      });
+
+      currentIndex = imagesPerPage;
+      document.getElementById("loadMore").style.display = "inline";
+      document.getElementById("showLess").classList.add("hidden");
+    }
   </script>
 </body>
 </html>
