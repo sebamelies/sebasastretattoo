@@ -45,12 +45,20 @@
     </div>
   </section>
 
-  <!-- GALERÍA DE LA CARPETA tattoos -->
-  <section class="text-center px-4">
-    <h2 class="text-2xl font-semibold mb-4">Tattoos</h2>
-    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-6xl mx-auto"></div>
-    <button id="loadMore" onclick="loadMoreImages()" class="mt-6 text-blue-600 underline">Más</button>
+  <!-- TATTOOS (desplegable como Sobre mí) -->
+  <section class="text-center px-4 pb-10 space-y-4">
+    <h2 onclick="toggleSection('tattoosSection')" class="text-2xl font-semibold cursor-pointer">Tattoos</h2>
+    <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6">
+      <div class="py-4">
+        <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+        <div class="mt-6 space-x-4">
+          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
+          <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
+        </div>
+      </div>
+    </div>
   </section>
+
 
   <!-- ENLACES DESPLEGABLES -->
   <section class="text-center px-4 pb-10 space-y-4 mt-10">
