@@ -16,7 +16,7 @@
       transition: all 0.6s ease;
     }
     .collapsible.open {
-      max-height: 500px;
+      max-height: 9999px;
       opacity: 1;
     }
   </style>
@@ -36,9 +36,8 @@
     </div>
   </section>
 
-  <!-- GALERÍA -->
-  <section id="galeria" class="text-center px-4 py-6">
-    <h2 class="text-2xl font-semibold mb-4">Galería</h2>
+  <!-- IMÁGENES FIJAS DESPUÉS DE SOBRE MI -->
+  <section class="text-center px-4 py-6">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
       <img src="assets/tatuaje1.png" alt="Tattoo 1" class="rounded-xl shadow-md">
       <img src="assets/tatuaje2.png" alt="Tattoo 2" class="rounded-xl shadow-md">
@@ -46,8 +45,15 @@
     </div>
   </section>
 
+  <!-- GALERÍA DE LA CARPETA tattoos -->
+  <section class="text-center px-4">
+    <h2 class="text-2xl font-semibold mb-4">Galería</h2>
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-6xl mx-auto"></div>
+    <button id="loadMore" onclick="loadMoreImages()" class="mt-6 text-blue-600 underline">Más</button>
+  </section>
+
   <!-- ENLACES DESPLEGABLES -->
-  <section class="text-center px-4 pb-10 space-y-4">
+  <section class="text-center px-4 pb-10 space-y-4 mt-10">
     <h2 onclick="toggleSection('flashSheets')" class="text-2xl font-semibold cursor-pointer">Flash sheets</h2>
     <div id="flashSheets" class="collapsible max-w-3xl mx-auto px-6">
       <div class="py-4">
@@ -76,13 +82,41 @@
     © 2025 sebastiansastretattoo
   </footer>
 
-  <!-- SCRIPT PARA DESPLEGAR SECCIONES -->
+  <!-- SCRIPT -->
   <script>
     function toggleSection(id) {
       const section = document.getElementById(id);
       section.classList.toggle('open');
     }
-  </script>
 
+    // Galería dinámica
+    const totalImages = 465; // cámbialo según la cantidad real de imágenes
+    const imagesPerPage = 25;
+    let currentIndex = 1;
+
+    function loadMoreImages() {
+      const gallery = document.getElementById("gallery");
+      const maxToLoad = Math.min(currentIndex + imagesPerPage - 1, totalImages);
+
+      for (let i = currentIndex; i <= maxToLoad; i++) {
+        const img = document.createElement("img");
+        img.src = `tattoos/${i}.jpg`;
+        img.alt = `Tattoo ${i}`;
+        img.className = "rounded-xl shadow-md w-full";
+        gallery.appendChild(img);
+      }
+
+      currentIndex = maxToLoad + 1;
+
+      if (currentIndex > totalImages) {
+        document.getElementById("loadMore").style.display = "none";
+      }
+    }
+
+    // Carga inicial
+    window.addEventListener("DOMContentLoaded", () => {
+      loadMoreImages();
+    });
+  </script>
 </body>
 </html>
