@@ -4,51 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Tatuajes únicos en Madrid. Sebastián Sastre, artista queer especializado en tattoos creativos, modernos y con identidad.">
-  <meta name="keywords" content="tattoo, tattoos, tatuajes, tatuaje, Madrid, lgbt, España, gay, queer, tattoo queer Madrid, Sebastián Sastre, Sebastian Sastre, tattoo queer, tattooqueer, tatuajequeer, queertattoo, lgbttattoo">
+  <meta name="keywords" content="tattoo, tattos, tatuajes, tatuaje, Madrid, lgbt, España, gay, queer, tattoo queer Madrid, Sebastián Sastre, Sebastian Sastre, tattoo queer, tattooqueer, tatuajequeer">
   <title>sebastiansastretattoo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: Helvetica, sans-serif; }
+    .collapsible {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: all 0.6s ease;
+    }
+    .collapsible.open {
+      max-height: 500px;
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-white text-black">
 
   <!-- HEADER -->
-  <header class="text-center py-10">
+  <header class="text-center pt-10 pb-4">
     <h1 class="text-4xl font-bold uppercase">sebastian sastre tattoo</h1>
-    <button onclick="toggleSection('sobreMi')" class="mt-4 text-blue-600 underline">Sobre mí</button>
+    <h2 onclick="toggleSection('sobreMi')" class="text-2xl font-semibold mt-4 cursor-pointer">Sobre mí</h2>
   </header>
 
   <!-- SOBRE MI -->
-  <section id="sobreMi" class="max-w-3xl mx-auto px-6 overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+  <section id="sobreMi" class="collapsible max-w-3xl mx-auto px-6">
     <div class="py-4">
       <p>Soy Sebastián, artista queer en Madrid que crea tatuajes con identidad, humor y crítica. Trabajo con valores inclusivos, dirigidos al público LGBT+.</p>
     </div>
   </section>
 
   <!-- GALERÍA -->
-  <section id="galeria" class="text-center px-4 py-10">
+  <section id="galeria" class="text-center px-4 py-6">
     <h2 class="text-2xl font-semibold mb-4">Galería</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-      <img src="assets/tatuaje1.png" alt="Tattoo 1" class="rounded-xl shadow-md">
-      <img src="assets/tatuaje2.png" alt="Tattoo 2" class="rounded-xl shadow-md">
-      <img src="assets/tatuaje3.png" alt="Tattoo 3" class="rounded-xl shadow-md">
+      <img src="assets/1.png" alt="Tattoo 1" class="rounded-xl shadow-md">
+      <img src="assets/2.png" alt="Tattoo 2" class="rounded-xl shadow-md">
+      <img src="assets/3.png" alt="Tattoo 3" class="rounded-xl shadow-md">
     </div>
   </section>
 
   <!-- ENLACES DESPLEGABLES -->
   <section class="text-center px-4 pb-10 space-y-4">
-    <button onclick="toggleSection('flashSheets')" class="text-blue-600 underline">Flash sheets</button>
-    <div id="flashSheets" class="max-w-3xl mx-auto px-6 overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+    <h2 onclick="toggleSection('flashSheets')" class="text-2xl font-semibold cursor-pointer">Flash sheets</h2>
+    <div id="flashSheets" class="collapsible max-w-3xl mx-auto px-6">
       <div class="py-4">
-        <p>Aquí irán flash sheets personalizados y disponibles. Contenido visual o descripciones que tú quieras agregar.</p>
+        <p>Aquí irán flash sheets personalizados y disponibles. Puedes subir imágenes o descripciones según tu estilo.</p>
       </div>
     </div>
 
-    <button onclick="toggleSection('tattoos')" class="text-blue-600 underline">Tattoos</button>
-    <div id="tattoos" class="max-w-3xl mx-auto px-6 overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+    <h2 onclick="toggleSection('tattoos')" class="text-2xl font-semibold cursor-pointer">Tattoos</h2>
+    <div id="tattoos" class="collapsible max-w-3xl mx-auto px-6">
       <div class="py-4">
-        <p>Aquí puedes poner texto o más imágenes sobre tu trabajo anterior, proyectos destacados o ideas.</p>
+        <p>Aquí puedes mostrar más tattoos, series anteriores, ideas en desarrollo o lo que quieras destacar.</p>
       </div>
     </div>
   </section>
@@ -56,9 +66,9 @@
   <!-- CONTACTO -->
   <section id="contacto" class="px-6 py-10 text-center">
     <h2 class="text-2xl font-semibold mb-4">Contacto</h2>
-    <p> Madrid, España</p>
-    <p> <a href="mailto:sebamelies@gmail.com" class="text-blue-500 underline">sebamelies@gmail.com</a></p>
-    <p> Instagram: <a href="https://instagram.com/sebasastretattoo" target="_blank" class="text-blue-500 underline">@sebasastretattoo</a></p>
+    <p>Madrid, España</p>
+    <p><a href="mailto:sebamelies@gmail.com" class="text-blue-500 underline">sebamelies@gmail.com</a></p>
+    <p>Instagram: <a href="https://instagram.com/sebasastretattoo" target="_blank" class="text-blue-500 underline">@sebasastretattoo</a></p>
   </section>
 
   <!-- FOOTER -->
@@ -70,13 +80,7 @@
   <script>
     function toggleSection(id) {
       const section = document.getElementById(id);
-      if (section.classList.contains('max-h-0')) {
-        section.classList.remove('max-h-0');
-        section.classList.add('max-h-screen');
-      } else {
-        section.classList.add('max-h-0');
-        section.classList.remove('max-h-screen');
-      }
+      section.classList.toggle('open');
     }
   </script>
 
