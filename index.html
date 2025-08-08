@@ -104,8 +104,8 @@
 
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
-        img.src = tattoos_comprimidas/${i}.png;  // ← CAMBIO HECHO AQUÍ
-        img.alt = Tattoo ${i};
+        img.src = `tattoos_comprimidas/${i}.png`;
+        img.alt = `Tattoo ${i}`;
         img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
