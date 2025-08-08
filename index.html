@@ -89,14 +89,13 @@
       const wasOpen = section.classList.contains('open');
       section.classList.toggle('open');
 
-      // Si es la primera vez que se abre "tattoosSection", carga imágenes
       if (!wasOpen && id === 'tattoosSection' && currentIndex === 0) {
         loadMoreImages();
       }
     }
 
     // Galería dinámica
-    const totalImages = 465; // Actualiza este número si cambian las imágenes disponibles
+    const totalImages = 465; // Cambia si es necesario
     const imagesPerPage = 25;
     let currentIndex = 0;
 
@@ -105,7 +104,7 @@
 
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
-        img.src = `tattoos/${i}.png`;
+        img.src = `tattoos_comprimidas/${i}.png`;  // ← CAMBIO HECHO AQUÍ
         img.alt = `Tattoo ${i}`;
         img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
