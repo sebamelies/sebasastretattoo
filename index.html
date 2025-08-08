@@ -51,9 +51,9 @@
     <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6">
       <div class="py-4">
         <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
-        <div class="mt-6 flex justify-center gap-8">
-          <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
+        <div class="mt-6 space-x-4">
           <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
+          <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
         </div>
       </div>
     </div>
@@ -94,7 +94,8 @@
       }
     }
 
-    const totalImages = 25;
+    // Galería dinámica
+    const totalImages = 25; // Cambia si es necesario
     const imagesPerPage = 25;
     let currentIndex = 0;
 
@@ -103,8 +104,8 @@
 
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
-        img.src = `tattoos_comprimidas/${i}.png`;
-        img.alt = `Tattoo ${i}`;
+        img.src = tattoos_comprimidas/${i}.png;  // ← CAMBIO HECHO AQUÍ
+        img.alt = Tattoo ${i};
         img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
