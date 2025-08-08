@@ -19,6 +19,7 @@
       max-height: 9999px;
       opacity: 1;
     }
+    .cursor-pointer { cursor: pointer; }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -82,19 +83,28 @@
     © 2025 sebastiansastretattoo
   </footer>
 
-  <!-- SCRIPT -->
   <script>
     const totalImages = 25;
-    const imagesPerPage = 25;
+    const imagesPerPage = 10; // Reducido para mejor experiencia
     let currentIndex = 0;
+    let tattoosLoaded = false;
+
+    // Inicializar secciones colapsables
+    document.addEventListener('DOMContentLoaded', function() {
+      // Asegurarse de que todas las secciones estén cerradas al inicio
+      document.querySelectorAll('.collapsible').forEach(section => {
+        section.classList.remove('open');
+      });
+    });
 
     function toggleSection(id) {
       const section = document.getElementById(id);
-      const wasOpen = section.classList.contains('open');
       section.classList.toggle('open');
-
-      if (!wasOpen && id === 'tattoosSection' && currentIndex === 0) {
+      
+      // Cargar imágenes solo si es la sección de tattoos, está abierta y no se han cargado antes
+      if (id === 'tattoosSection' && section.classList.contains('open') && !tattoosLoaded) {
         loadMoreImages();
+        tattoosLoaded = true;
       }
     }
 
@@ -105,7 +115,7 @@
         const img = document.createElement("img");
         img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
-        img.className = "rounded-xl shadow-md w-full cursor-pointer";
+        img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
     }
@@ -116,10 +126,8 @@
       loadImages(from, to);
       currentIndex = to;
 
-      if (currentIndex > imagesPerPage) {
-        document.getElementById("showLess").classList.remove("hidden");
-      }
-
+      document.getElementById("showLess").classList.remove("hidden");
+      
       if (currentIndex >= totalImages) {
         document.getElementById("loadMore").style.display = "none";
       }
@@ -128,10 +136,11 @@
     function showLessImages() {
       const gallery = document.getElementById("gallery");
       const images = gallery.querySelectorAll("img");
-
-      images.forEach((img, index) => {
-        if (index >= imagesPerPage) img.remove();
-      });
+      
+      // Eliminar solo las imágenes adicionales (dejando las primeras imagesPerPage)
+      for (let i = imagesPerPage; i < images.length; i++) {
+        images[i].remove();
+      }
 
       currentIndex = imagesPerPage;
       document.getElementById("loadMore").style.display = "inline";
