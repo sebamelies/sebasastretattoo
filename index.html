@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Tatuajes únicos en Madrid. Sebastián Sastre, artista queer especializado en tattoos creativos, modernos y con identidad.">
   <meta name="keywords" content="tattoo, tattos, tatuajes, tatuaje, Madrid, lgbt, España, gay, queer, tattoo queer Madrid, Sebastián Sastre, Sebastian Sastre, tattoo queer, tattooqueer, tatuajequeer">
   <title>sebastiansastretattoo</title>
@@ -21,6 +21,7 @@
     }
   </style>
 </head>
+
 <body class="bg-white text-black">
 
   <!-- HEADER -->
@@ -52,8 +53,8 @@
       <div class="py-4">
         <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
         <div class="mt-6 space-x-4">
-          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
           <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
+          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
         </div>
       </div>
     </div>
@@ -82,6 +83,14 @@
     © 2025 sebastiansastretattoo
   </footer>
 
+  <!-- MODAL PARA IMAGEN AMPLIADA -->
+  <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="relative max-w-4xl w-full p-4">
+      <button onclick="closeModal()" class="absolute top-2 right-2 text-white text-3xl font-bold">&times;</button>
+      <img id="modalImage" src="" alt="Imagen ampliada" class="w-full max-h-[90vh] object-contain rounded-lg shadow-lg">
+    </div>
+  </div>
+
   <!-- SCRIPT -->
   <script>
     function toggleSection(id) {
@@ -94,8 +103,7 @@
       }
     }
 
-    // Galería dinámica
-    const totalImages = 25; // Cambia si es necesario
+    const totalImages = 25; // ajustado según tu comentario
     const imagesPerPage = 25;
     let currentIndex = 0;
 
@@ -104,9 +112,10 @@
 
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
-        img.src = `tattoos_comprimidas/${i}.png`;  // ← CAMBIO HECHO AQUÍ
+        img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
-        img.className = "rounded-xl shadow-md w-full";
+        img.className = "rounded-xl shadow-md w-full cursor-pointer";
+        img.onclick = () => openModal(img.src);
         gallery.appendChild(img);
       }
     }
@@ -137,6 +146,22 @@
       currentIndex = imagesPerPage;
       document.getElementById("loadMore").style.display = "inline";
       document.getElementById("showLess").classList.add("hidden");
+    }
+
+    function openModal(src) {
+      const modal = document.getElementById("imageModal");
+      const modalImage = document.getElementById("modalImage");
+      modalImage.src = src;
+      modal.classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("imageModal");
+      const modalImage = document.getElementById("modalImage");
+      modal.classList.add("hidden");
+      modalImage.src = "";
+      document.body.classList.remove("overflow-hidden");
     }
   </script>
 </body>
