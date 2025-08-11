@@ -18,9 +18,7 @@
       transition: max-height 0.35s ease, opacity 0.25s ease;
       will-change: max-height;
     }
-    .collapsible.open {
-      opacity: 1;
-    }
+    .collapsible.open { opacity: 1; }
 
     .cursor-pointer { cursor: pointer; }
 
@@ -154,8 +152,8 @@
   <!-- SCRIPT (módulo para evitar colisiones) -->
   <script type="module">
     // --- Config ---
-    const totalImages = 25;
-    const imagesPerPage = 10;
+    const totalImages = 453;         // <<< total disponible
+    const imagesPerPage = 20;        // tamaño de tanda recomendado
 
     // --- Estado ---
     let currentIndex = 0;
@@ -166,7 +164,6 @@
 
     function ensureResizeObserver(sectionEl) {
       if (resizeObservers.has(sectionEl)) return;
-      // Observa cambios de tamaño internos (nuevas imágenes, texto, etc.)
       const ro = new ResizeObserver(() => {
         if (sectionEl.classList.contains('open')) {
           sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
@@ -181,7 +178,6 @@
       sectionEl.classList.add('open');
       sectionEl.setAttribute('aria-hidden', 'false');
       if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
-      // Fija la altura actual para la transición
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
     }
 
@@ -198,7 +194,7 @@
       else openSection(sectionEl, triggerEl);
     }
 
-    // ====== Galería ======
+    // ====== Galería (lazy-loading) ======
     function loadImages(from, to) {
       const gallery = document.getElementById('gallery');
       if (!gallery) return;
@@ -209,11 +205,14 @@
         img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
         img.className = 'rounded-xl shadow-md w-full';
+        // Lazy loading: primeras "imagesPerPage" en eager, resto lazy
+        if (i <= imagesPerPage) img.loading = 'eager';
+        else img.loading = 'lazy';
+        img.decoding = 'async';
         frag.appendChild(img);
       }
       gallery.appendChild(frag);
 
-      // Si la sección está abierta, el ResizeObserver ajustará max-height.
       const tattoosSection = document.getElementById('tattoosSection');
       if (tattoosSection.classList.contains('open')) {
         tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
@@ -273,7 +272,7 @@
 
       const willOpen = !section.classList.contains('open');
       if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
+        loadMoreImages();          // primera tanda
         tattoosLoaded = true;
       }
       toggleSectionElement(section, trigger);
