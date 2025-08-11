@@ -10,7 +10,7 @@
   <style>
     body { font-family: Helvetica, Arial, sans-serif; }
 
-    /* Colapsables con transición (simple y estable) */
+    /* Colapsables con transición estable */
     .collapsible {
       max-height: 0;
       opacity: 0;
@@ -44,8 +44,15 @@
       cursor: zoom-out;
     }
 
-    /* Pista visual de zoom */
-    #gallery img { cursor: zoom-in; }
+    /* Galería: reserva espacio para evitar cortes con lazy-loading */
+    #gallery img {
+      cursor: zoom-in;
+      aspect-ratio: 1 / 1;   /* miniaturas cuadradas; ajusta si prefieres otro ratio */
+      object-fit: cover;     /* recorta para llenar el cuadro */
+      display: block;
+      width: 100%;
+      height: auto;          /* con aspect-ratio, el alto queda reservado */
+    }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -152,20 +159,22 @@
   <!-- SCRIPT (módulo para evitar colisiones) -->
   <script type="module">
     // --- Config ---
-    const totalImages = 453;         // <<< total disponible
-    const imagesPerPage = 20;        // tamaño de tanda recomendado
+    const totalImages = 453;   // total disponible
+    const imagesPerPage = 20;  // tamaño de tanda
 
     // --- Estado ---
     let currentIndex = 0;
     let tattoosLoaded = false;
 
-    // ====== Colapsables con ResizeObserver ======
+    // ====== Colapsables con ResizeObserver y manejo de max-height ======
     const resizeObservers = new Map();
 
     function ensureResizeObserver(sectionEl) {
       if (resizeObservers.has(sectionEl)) return;
       const ro = new ResizeObserver(() => {
-        if (sectionEl.classList.contains('open')) {
+        if (!sectionEl.classList.contains('open')) return;
+        const mh = getComputedStyle(sectionEl).maxHeight;
+        if (mh !== 'none') {
           sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
         }
       });
@@ -178,10 +187,29 @@
       sectionEl.classList.add('open');
       sectionEl.setAttribute('aria-hidden', 'false');
       if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
+
+      // Anima a la altura actual
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+
+      // Al terminar, deja max-height libre para que el contenido (lazy) crezca sin cortar
+      const onEnd = (e) => {
+        if (e.propertyName !== 'max-height') return;
+        sectionEl.style.maxHeight = 'none';
+        sectionEl.removeEventListener('transitionend', onEnd);
+      };
+      sectionEl.addEventListener('transitionend', onEnd);
     }
 
     function closeSection(sectionEl, triggerEl) {
+      // Si quedó en 'none', fija la altura actual para poder animar a 0
+      const mh = getComputedStyle(sectionEl).maxHeight;
+      if (mh === 'none') {
+        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+        // Forzar reflow antes de llevar a 0
+        // eslint-disable-next-line no-unused-expressions
+        sectionEl.offsetHeight;
+      }
+
       sectionEl.classList.remove('open');
       sectionEl.setAttribute('aria-hidden', 'true');
       if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
@@ -205,17 +233,20 @@
         img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
         img.className = 'rounded-xl shadow-md w-full';
-        // Lazy loading: primeras "imagesPerPage" en eager, resto lazy
-        if (i <= imagesPerPage) img.loading = 'eager';
-        else img.loading = 'lazy';
+        // Primer lote eager para estabilidad de altura; resto lazy
+        img.loading = (i <= imagesPerPage) ? 'eager' : 'lazy';
         img.decoding = 'async';
         frag.appendChild(img);
       }
       gallery.appendChild(frag);
 
+      // Si está animando (aún con max-height en px), acompaña la altura; si ya está en 'none', no hace falta.
       const tattoosSection = document.getElementById('tattoosSection');
       if (tattoosSection.classList.contains('open')) {
-        tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+        const mh = getComputedStyle(tattoosSection).maxHeight;
+        if (mh !== 'none') {
+          tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+        }
       }
     }
 
@@ -250,7 +281,10 @@
 
       const tattoosSection = document.getElementById('tattoosSection');
       if (tattoosSection.classList.contains('open')) {
-        tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+        const mh = getComputedStyle(tattoosSection).maxHeight;
+        if (mh !== 'none') {
+          tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+        }
       }
     }
 
