@@ -18,13 +18,11 @@
       transition: max-height 0.4s ease, opacity 0.25s ease;
       will-change: max-height, opacity;
     }
-    .collapsible.open {
-      opacity: 1;
-    }
+    .collapsible.open { opacity: 1; }
 
     .cursor-pointer { cursor: pointer; }
 
-    /* ===== Modal de imagen ampliada ===== */
+    /* Modal de imagen ampliada */
     .image-modal {
       position: fixed;
       inset: 0;
@@ -32,7 +30,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 50;
+      z-index: 9999;       /* alto para estar por encima de todo */
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -46,6 +44,7 @@
       max-height: 90%;
       border-radius: 0.75rem;
       box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+      cursor: zoom-out;
     }
 
     /* Sugerencia visual de zoom sobre miniaturas */
@@ -153,7 +152,7 @@
     <img id="imageModalContent" src="" alt="Imagen ampliada">
   </div>
 
-  <!-- SCRIPT (aislado en módulo para evitar colisiones) -->
+  <!-- SCRIPT (módulo para evitar colisiones) -->
   <script type="module">
     // --- Config ---
     const totalImages = 25;
@@ -279,18 +278,17 @@
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('imageModalContent');
 
-    // Abrir modal al hacer clic en cualquier imagen de la galería
-    document.getElementById('gallery')?.addEventListener('click', (e) => {
-      const target = e.target;
-      if (target && target.tagName === 'IMG') {
-        modalImg.src = target.src;
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden'; // bloquea scroll de fondo
-      }
+    // Delegación global: cualquier clic en una IMG dentro de #gallery
+    document.addEventListener('click', (e) => {
+      const img = e.target.closest('#gallery img');
+      if (!img) return;
+      modalImg.src = img.src;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
     });
 
-    // Cerrar modal al hacer clic en el fondo (no cierra si clicas la imagen)
+    // Cerrar modal al hacer clic en el fondo oscuro
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.remove('open');
@@ -308,9 +306,9 @@
       }
     });
 
-    // (Opcional) ayuda de depuración: loggea errores JS si los hay
+    // (Opcional) depuración: log de errores
     window.addEventListener('error', (e) => {
-      console.warn('Error JS capturado:', e.message);
+      console.warn('Error JS:', e.message);
     });
   </script>
 </body>
