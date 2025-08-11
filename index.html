@@ -10,7 +10,7 @@
   <style>
     body { font-family: Helvetica, Arial, sans-serif; }
 
-    /* Colapsables con transición */
+    /* Colapsables con transición solo en max-height (al abrir/cerrar) */
     .collapsible {
       max-height: 0;
       opacity: 0;
@@ -18,7 +18,10 @@
       transition: max-height 0.4s ease, opacity 0.25s ease;
       will-change: max-height, opacity;
     }
-    .collapsible.open { opacity: 1; }
+    .collapsible.open {
+      opacity: 1;
+      /* Ojo: tras terminar de abrir, en JS ponemos max-height: none para crecer libremente */
+    }
 
     .cursor-pointer { cursor: pointer; }
 
@@ -30,7 +33,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;       /* alto para estar por encima de todo */
+      z-index: 9999;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -162,154 +165,57 @@
     let currentIndex = 0;
     let tattoosLoaded = false;
 
-    // --- Utilidades colapsables ---
-    function setSectionHeight(section, open) {
-      if (open) {
-        section.style.maxHeight = section.scrollHeight + 'px';
-      } else {
-        section.style.maxHeight = section.scrollHeight + 'px';
-        requestAnimationFrame(() => { section.style.maxHeight = '0px'; });
+    // Atajos a elementos
+    const tattoosSectionEl = document.getElementById('tattoosSection');
+
+    // ===== Utilidades colapsables =====
+    function openSection(sectionEl, triggerEl) {
+      // Preparar para animar apertura
+      sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+      sectionEl.classList.add('open');
+      sectionEl.setAttribute('aria-hidden', 'false');
+      triggerEl?.setAttribute('aria-expanded', 'true');
+
+      // Cuando termina la transición, permitir crecimiento libre
+      const onEnd = (e) => {
+        if (e.propertyName === 'max-height') {
+          sectionEl.style.maxHeight = 'none'; // evita cortes al crecer
+          sectionEl.removeEventListener('transitionend', onEnd);
+        }
+      };
+      sectionEl.addEventListener('transitionend', onEnd);
+    }
+
+    function closeSection(sectionEl, triggerEl) {
+      // Si estaba en 'none', fijar altura actual en px para poder animar a 0
+      if (getComputedStyle(sectionEl).maxHeight === 'none') {
+        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
       }
+      // Forzar reflow y colapsar
+      requestAnimationFrame(() => {
+        sectionEl.classList.remove('open');
+        sectionEl.style.maxHeight = '0px';
+        sectionEl.setAttribute('aria-hidden', 'true');
+        triggerEl?.setAttribute('aria-expanded', 'false');
+      });
     }
 
     function toggleSectionElement(sectionEl, triggerEl) {
       const isOpen = sectionEl.classList.contains('open');
-      if (isOpen) {
-        sectionEl.classList.remove('open');
-        setSectionHeight(sectionEl, false);
-      } else {
-        sectionEl.classList.add('open');
-        setSectionHeight(sectionEl, true);
-      }
-      sectionEl.setAttribute('aria-hidden', String(isOpen));
-      if (triggerEl) triggerEl.setAttribute('aria-expanded', String(!isOpen));
+      if (isOpen) closeSection(sectionEl, triggerEl);
+      else openSection(sectionEl, triggerEl);
     }
 
-    // --- Galería ---
+    // Si se añaden elementos mientras la sección está abriendo (aún con max-height en px),
+    // reajustamos el max-height para cubrir la nueva altura
+    function adjustIfOpening(sectionEl) {
+      const mh = getComputedStyle(sectionEl).maxHeight;
+      if (mh !== 'none' && sectionEl.classList.contains('open')) {
+        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+      }
+    }
+
+    // ===== Galería =====
     function loadImages(from, to) {
       const gallery = document.getElementById('gallery');
       if (!gallery) return;
-      for (let i = from; i <= to && i <= totalImages; i++) {
-        const img = document.createElement('img');
-        img.src = `tattoos_comprimidas/${i}.png`;
-        img.alt = `Tattoo ${i}`;
-        img.className = 'rounded-xl shadow-md w-full';
-        gallery.appendChild(img);
-      }
-    }
-
-    function loadMoreImages() {
-      const from = currentIndex + 1;
-      const to = Math.min(currentIndex + imagesPerPage, totalImages);
-      loadImages(from, to);
-      currentIndex = to;
-
-      const showLessBtn = document.getElementById('showLess');
-      const loadMoreBtn = document.getElementById('loadMore');
-
-      if (showLessBtn && currentIndex > imagesPerPage) {
-        showLessBtn.classList.remove('hidden');
-      }
-      if (loadMoreBtn && currentIndex >= totalImages) {
-        loadMoreBtn.style.display = 'none';
-      }
-    }
-
-    function showLessImages() {
-      const gallery = document.getElementById('gallery');
-      if (!gallery) return;
-      const images = Array.from(gallery.querySelectorAll('img'));
-      images.slice(imagesPerPage).forEach(img => img.remove());
-
-      currentIndex = imagesPerPage;
-      const loadMoreBtn = document.getElementById('loadMore');
-      const showLessBtn = document.getElementById('showLess');
-      if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
-      if (showLessBtn) showLessBtn.classList.add('hidden');
-    }
-
-    // --- Inicio: colapsables cerrados ---
-    document.querySelectorAll('.collapsible').forEach(section => {
-      section.classList.remove('open');
-      section.setAttribute('aria-hidden', 'true');
-      section.style.maxHeight = '0px';
-    });
-
-    // Delegación de eventos para toggles
-    document.addEventListener('click', (e) => {
-      const trigger = e.target.closest('[data-toggle="collapse"]');
-      if (!trigger) return;
-
-      const targetSel = trigger.getAttribute('data-target');
-      const section = targetSel ? document.querySelector(targetSel) : null;
-      if (!section) return;
-
-      const willOpen = !section.classList.contains('open');
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
-        tattoosLoaded = true;
-      }
-      toggleSectionElement(section, trigger);
-    });
-
-    // Accesibilidad: teclado (Enter o Espacio)
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]');
-      if (!trigger) return;
-      e.preventDefault();
-      const targetSel = trigger.getAttribute('data-target');
-      const section = targetSel ? document.querySelector(targetSel) : null;
-      if (!section) return;
-
-      const willOpen = !section.classList.contains('open');
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
-        tattoosLoaded = true;
-      }
-      toggleSectionElement(section, trigger);
-    });
-
-    // Botones de galería
-    document.getElementById('loadMore')?.addEventListener('click', loadMoreImages);
-    document.getElementById('showLess')?.addEventListener('click', showLessImages);
-
-    // ===== Modal de imagen (ampliar al clic) =====
-    const modal = document.getElementById('imageModal');
-    const modalImg = document.getElementById('imageModalContent');
-
-    // Delegación global: cualquier clic en una IMG dentro de #gallery
-    document.addEventListener('click', (e) => {
-      const img = e.target.closest('#gallery img');
-      if (!img) return;
-      modalImg.src = img.src;
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    });
-
-    // Cerrar modal al hacer clic en el fondo oscuro
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-      }
-    });
-
-    // Cerrar con Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('open')) {
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-      }
-    });
-
-    // (Opcional) depuración: log de errores
-    window.addEventListener('error', (e) => {
-      console.warn('Error JS:', e.message);
-    });
-  </script>
-</body>
-</html>
