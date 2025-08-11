@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tatuajes únicos en Madrid. Sebastián Sastre, artista queer especializado en tattoos creativos, modernos y con identidad.">
-  <meta name="keywords" content="tattoo, tattos, tatuajes, tatuaje, Madrid, lgbt, España, gay, queer, tattoo queer Madrid, Sebastián Sastre, Sebastian Sastre, tattoo queer, tattooqueer, tatuajequeer">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tatuajes únicos en Madrid. Sebastián Sastre, artista queer especializado en tattoos creativos, modernos y con identidad." />
+  <meta name="keywords" content="tattoo, tattos, tatuajes, tatuaje, Madrid, lgbt, España, gay, queer, tattoo queer Madrid, Sebastián Sastre" />
   <title>sebastiansastretattoo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -19,6 +19,7 @@
       max-height: 9999px;
       opacity: 1;
     }
+    .cursor-pointer { cursor: pointer; }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -36,7 +37,7 @@
     </div>
   </section>
 
-  <!-- IMÁGENES FIJAS DESPUÉS DE SOBRE MI -->
+  <!-- IMÁGENES FIJAS -->
   <section class="text-center px-4 py-6">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
       <img src="assets/tatuaje1.png" alt="Tattoo 1" class="rounded-xl shadow-md">
@@ -45,23 +46,21 @@
     </div>
   </section>
 
-  <!-- TATTOOS (desplegable como Sobre mí) -->
-  <!-- TATTOOS (desplegable) -->
+  <!-- TATTOOS -->
   <section class="text-center px-4 pb-10 space-y-4">
     <h2 onclick="toggleSection('tattoosSection')" class="text-2xl font-semibold cursor-pointer">Tattoos</h2>
     <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6">
       <div class="py-4">
         <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
         <div class="mt-6 space-x-4">
-          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
           <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
+          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
         </div>
       </div>
     </div>
   </section>
 
-
-  <!-- ENLACES DESPLEGABLES -->
+  <!-- FLASH SHEETS -->
   <section class="text-center px-4 pb-10 space-y-4 mt-10">
     <h2 onclick="toggleSection('flashSheets')" class="text-2xl font-semibold cursor-pointer">Flash sheets</h2>
     <div id="flashSheets" class="collapsible max-w-3xl mx-auto px-6">
@@ -70,7 +69,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- CONTACTO -->
   <section id="contacto" class="px-6 py-10 text-center">
@@ -87,60 +85,64 @@
 
   <!-- SCRIPT -->
   <script>
+    const totalImages = 25;
+    const imagesPerPage = 25;
+    const imagesPerPage = 10; // Reducido para mejor experiencia
+    let currentIndex = 0;
+    let tattoosLoaded = false;
+
+    // Inicializar secciones colapsables
+    document.addEventListener('DOMContentLoaded', function() {
+      // Asegurarse de que todas las secciones estén cerradas al inicio
+      document.querySelectorAll('.collapsible').forEach(section => {
+        section.classList.remove('open');
+      });
+    });
+
     function toggleSection(id) {
       const section = document.getElementById(id);
       const wasOpen = section.classList.contains('open');
       section.classList.toggle('open');
 
-      // Si es la primera vez que se abre "tattoosSection", carga imágenes
       if (!wasOpen && id === 'tattoosSection' && currentIndex === 0) {
+      
+      // Cargar imágenes solo si es la sección de tattoos, está abierta y no se han cargado antes
+      if (id === 'tattoosSection' && section.classList.contains('open') && !tattoosLoaded) {
         loadMoreImages();
+        tattoosLoaded = true;
       }
     }
 
-    // Galería dinámica
-    const totalImages = 465; // cámbialo según la cantidad real de imágenes
-    const totalImages = 465; // Actualiza este número si cambian las imágenes disponibles
-    const imagesPerPage = 25;
-    let currentIndex = 1;
-    let currentIndex = 0;
-
-    function loadMoreImages() {
     function loadImages(from, to) {
       const gallery = document.getElementById("gallery");
-      const maxToLoad = Math.min(currentIndex + imagesPerPage - 1, totalImages);
 
-      for (let i = currentIndex; i <= maxToLoad; i++) {
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement("img");
-        img.src = `tattoos/${i}.jpg`;
+        img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
+        img.className = "rounded-xl shadow-md w-full cursor-pointer";
         img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
     }
 
-      currentIndex = maxToLoad + 1;
     function loadMoreImages() {
       const from = currentIndex + 1;
       const to = currentIndex + imagesPerPage;
       loadImages(from, to);
       currentIndex = to;
 
-      if (currentIndex > totalImages) {
       if (currentIndex > imagesPerPage) {
         document.getElementById("showLess").classList.remove("hidden");
       }
 
+      document.getElementById("showLess").classList.remove("hidden");
+      
       if (currentIndex >= totalImages) {
         document.getElementById("loadMore").style.display = "none";
       }
     }
 
-    // Carga inicial
-    window.addEventListener("DOMContentLoaded", () => {
-      loadMoreImages();
-    });
     function showLessImages() {
       const gallery = document.getElementById("gallery");
       const images = gallery.querySelectorAll("img");
@@ -148,6 +150,11 @@
       images.forEach((img, index) => {
         if (index >= imagesPerPage) img.remove();
       });
+      
+      // Eliminar solo las imágenes adicionales (dejando las primeras imagesPerPage)
+      for (let i = imagesPerPage; i < images.length; i++) {
+        images[i].remove();
+      }
 
       currentIndex = imagesPerPage;
       document.getElementById("loadMore").style.display = "inline";
