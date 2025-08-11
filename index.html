@@ -23,6 +23,33 @@
     }
 
     .cursor-pointer { cursor: pointer; }
+
+    /* ===== Modal de imagen ampliada ===== */
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .image-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .image-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 0.75rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Sugerencia visual de zoom sobre miniaturas */
+    #gallery img { cursor: zoom-in; }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -121,6 +148,11 @@
     © 2025 sebastiansastretattoo
   </footer>
 
+  <!-- Modal de imagen ampliada -->
+  <div id="imageModal" class="image-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <img id="imageModalContent" src="" alt="Imagen ampliada">
+  </div>
+
   <!-- SCRIPT (aislado en módulo para evitar colisiones) -->
   <script type="module">
     // --- Config ---
@@ -131,9 +163,8 @@
     let currentIndex = 0;
     let tattoosLoaded = false;
 
-    // --- Utilidades ---
+    // --- Utilidades colapsables ---
     function setSectionHeight(section, open) {
-      // Forzar altura actual para animar correctamente
       if (open) {
         section.style.maxHeight = section.scrollHeight + 'px';
       } else {
@@ -155,6 +186,7 @@
       if (triggerEl) triggerEl.setAttribute('aria-expanded', String(!isOpen));
     }
 
+    // --- Galería ---
     function loadImages(from, to) {
       const gallery = document.getElementById('gallery');
       if (!gallery) return;
@@ -197,15 +229,14 @@
       if (showLessBtn) showLessBtn.classList.add('hidden');
     }
 
-    // --- Inicio ---
-    // Inicializa estado colapsado y altura 0 para permitir animación
+    // --- Inicio: colapsables cerrados ---
     document.querySelectorAll('.collapsible').forEach(section => {
       section.classList.remove('open');
       section.setAttribute('aria-hidden', 'true');
       section.style.maxHeight = '0px';
     });
 
-    // Delegación de eventos: click en cualquier elemento con data-toggle="collapse"
+    // Delegación de eventos para toggles
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-toggle="collapse"]');
       if (!trigger) return;
@@ -214,13 +245,11 @@
       const section = targetSel ? document.querySelector(targetSel) : null;
       if (!section) return;
 
-      // Carga perezosa de "Tattoos" solo la primera vez que se abre
       const willOpen = !section.classList.contains('open');
       if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
         loadMoreImages();
         tattoosLoaded = true;
       }
-
       toggleSectionElement(section, trigger);
     });
 
@@ -245,6 +274,39 @@
     // Botones de galería
     document.getElementById('loadMore')?.addEventListener('click', loadMoreImages);
     document.getElementById('showLess')?.addEventListener('click', showLessImages);
+
+    // ===== Modal de imagen (ampliar al clic) =====
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('imageModalContent');
+
+    // Abrir modal al hacer clic en cualquier imagen de la galería
+    document.getElementById('gallery')?.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target && target.tagName === 'IMG') {
+        modalImg.src = target.src;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden'; // bloquea scroll de fondo
+      }
+    });
+
+    // Cerrar modal al hacer clic en el fondo (no cierra si clicas la imagen)
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    });
 
     // (Opcional) ayuda de depuración: loggea errores JS si los hay
     window.addEventListener('error', (e) => {
