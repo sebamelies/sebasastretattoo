@@ -10,15 +10,17 @@
   <style>
     body { font-family: Helvetica, Arial, sans-serif; }
 
-    /* Colapsables con transición */
+    /* Colapsables con transición (simple y estable) */
     .collapsible {
       max-height: 0;
       opacity: 0;
       overflow: hidden;
-      transition: max-height 0.4s ease, opacity 0.25s ease;
-      will-change: max-height, opacity;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      will-change: max-height;
     }
-    .collapsible.open { opacity: 1; }
+    .collapsible.open {
+      opacity: 1;
+    }
 
     .cursor-pointer { cursor: pointer; }
 
@@ -159,54 +161,41 @@
     let currentIndex = 0;
     let tattoosLoaded = false;
 
-    // ====== Helpers de colapsable con auto-height ======
+    // ====== Colapsables con ResizeObserver ======
+    const resizeObservers = new Map();
+
+    function ensureResizeObserver(sectionEl) {
+      if (resizeObservers.has(sectionEl)) return;
+      // Observa cambios de tamaño internos (nuevas imágenes, texto, etc.)
+      const ro = new ResizeObserver(() => {
+        if (sectionEl.classList.contains('open')) {
+          sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+        }
+      });
+      ro.observe(sectionEl);
+      resizeObservers.set(sectionEl, ro);
+    }
+
     function openSection(sectionEl, triggerEl) {
-      // De 0px -> altura real
+      ensureResizeObserver(sectionEl);
       sectionEl.classList.add('open');
       sectionEl.setAttribute('aria-hidden', 'false');
       if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
-
-      // Preparar transición
+      // Fija la altura actual para la transición
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-      const onEnd = (e) => {
-        if (e.propertyName !== 'max-height') return;
-        sectionEl.style.maxHeight = 'auto'; // Permite crecer sin cortar
-        sectionEl.removeEventListener('transitionend', onEnd);
-      };
-      sectionEl.addEventListener('transitionend', onEnd);
     }
 
     function closeSection(sectionEl, triggerEl) {
-      // Si estaba en 'auto', conviértelo a px antes de ir a 0
-      const computed = getComputedStyle(sectionEl).maxHeight;
-      if (computed === 'none' || computed === 'auto') {
-        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-      }
-      // Forzar reflow y colapsar
-      requestAnimationFrame(() => {
-        sectionEl.classList.remove('open');
-        sectionEl.setAttribute('aria-hidden', 'true');
-        if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
-        sectionEl.style.maxHeight = '0px';
-      });
+      sectionEl.classList.remove('open');
+      sectionEl.setAttribute('aria-hidden', 'true');
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
+      sectionEl.style.maxHeight = '0px';
     }
 
     function toggleSectionElement(sectionEl, triggerEl) {
       const isOpen = sectionEl.classList.contains('open');
-      if (isOpen) {
-        closeSection(sectionEl, triggerEl);
-      } else {
-        openSection(sectionEl, triggerEl);
-      }
-    }
-
-    // Cuando el contenido cambia y la sección está abierta, ajusta altura si no está en 'auto'
-    function adjustSectionIfNeeded(sectionEl) {
-      if (!sectionEl.classList.contains('open')) return;
-      const mh = getComputedStyle(sectionEl).maxHeight;
-      if (mh !== 'auto') {
-        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-      }
+      if (isOpen) closeSection(sectionEl, triggerEl);
+      else openSection(sectionEl, triggerEl);
     }
 
     // ====== Galería ======
@@ -220,14 +209,15 @@
         img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
         img.className = 'rounded-xl shadow-md w-full';
-        // Cada imagen, al cargar, reajusta altura del contenedor si está abierto
-        img.onload = () => adjustSectionIfNeeded(document.getElementById('tattoosSection'));
         frag.appendChild(img);
       }
       gallery.appendChild(frag);
 
-      // Ajuste inmediato (por si cachea)
-      adjustSectionIfNeeded(document.getElementById('tattoosSection'));
+      // Si la sección está abierta, el ResizeObserver ajustará max-height.
+      const tattoosSection = document.getElementById('tattoosSection');
+      if (tattoosSection.classList.contains('open')) {
+        tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+      }
     }
 
     function loadMoreImages() {
@@ -245,9 +235,6 @@
       if (loadMoreBtn && currentIndex >= totalImages) {
         loadMoreBtn.style.display = 'none';
       }
-
-      // Asegura que los botones sigan visibles (altura recalculada)
-      adjustSectionIfNeeded(document.getElementById('tattoosSection'));
     }
 
     function showLessImages() {
@@ -262,7 +249,10 @@
       if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
       if (showLessBtn) showLessBtn.classList.add('hidden');
 
-      adjustSectionIfNeeded(document.getElementById('tattoosSection'));
+      const tattoosSection = document.getElementById('tattoosSection');
+      if (tattoosSection.classList.contains('open')) {
+        tattoosSection.style.maxHeight = tattoosSection.scrollHeight + 'px';
+      }
     }
 
     // --- Inicio: colapsables cerrados ---
