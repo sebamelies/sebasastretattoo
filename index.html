@@ -9,16 +9,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: Helvetica, Arial, sans-serif; }
+
+    /* colapsables con transición */
     .collapsible {
       max-height: 0;
       opacity: 0;
       overflow: hidden;
-      transition: all 0.6s ease;
+      transition: max-height 0.6s ease, opacity 0.6s ease;
+      will-change: max-height, opacity;
     }
     .collapsible.open {
-      max-height: 9999px;
+      max-height: 9999px; /* suficientemente grande para el contenido */
       opacity: 1;
     }
+
     .cursor-pointer { cursor: pointer; }
   </style>
 </head>
@@ -27,11 +31,22 @@
   <!-- HEADER -->
   <header class="text-center pt-10 pb-4">
     <h1 class="text-4xl font-bold uppercase">sebastian sastre tattoo</h1>
-    <h2 onclick="toggleSection('sobreMi')" class="text-2xl font-semibold mt-4 cursor-pointer">Sobre mí</h2>
+    <h2
+      class="text-2xl font-semibold mt-4 cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#sobreMi"
+      role="button"
+      tabindex="0"
+      aria-controls="sobreMi"
+      aria-expanded="false"
+    >
+      Sobre mí
+      <span aria-hidden="true">▾</span>
+    </h2>
   </header>
 
   <!-- SOBRE MI -->
-  <section id="sobreMi" class="collapsible max-w-3xl mx-auto px-6">
+  <section id="sobreMi" class="collapsible max-w-3xl mx-auto px-6" aria-hidden="true">
     <div class="py-4">
       <p>Soy Sebastián, artista queer en Madrid que crea tatuajes con identidad, humor y crítica. Trabajo con valores inclusivos, dirigidos al público LGBT+.</p>
     </div>
@@ -48,13 +63,25 @@
 
   <!-- TATTOOS -->
   <section class="text-center px-4 pb-10 space-y-4">
-    <h2 onclick="toggleSection('tattoosSection')" class="text-2xl font-semibold cursor-pointer">Tattoos</h2>
-    <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6">
+    <h2
+      class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#tattoosSection"
+      role="button"
+      tabindex="0"
+      aria-controls="tattoosSection"
+      aria-expanded="false"
+    >
+      Tattoos
+      <span aria-hidden="true">▾</span>
+    </h2>
+
+    <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6" aria-hidden="true">
       <div class="py-4">
         <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
         <div class="mt-6 space-x-4">
-          <button id="showLess" onclick="showLessImages()" class="text-blue-600 underline hidden">Menos</button>
-          <button id="loadMore" onclick="loadMoreImages()" class="text-blue-600 underline">Más</button>
+          <button id="showLess" class="text-blue-600 underline hidden" type="button">Menos</button>
+          <button id="loadMore" class="text-blue-600 underline" type="button">Más</button>
         </div>
       </div>
     </div>
@@ -62,8 +89,20 @@
 
   <!-- FLASH SHEETS -->
   <section class="text-center px-4 pb-10 space-y-4 mt-10">
-    <h2 onclick="toggleSection('flashSheets')" class="text-2xl font-semibold cursor-pointer">Flash sheets</h2>
-    <div id="flashSheets" class="collapsible max-w-3xl mx-auto px-6">
+    <h2
+      class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#flashSheets"
+      role="button"
+      tabindex="0"
+      aria-controls="flashSheets"
+      aria-expanded="false"
+    >
+      Flash sheets
+      <span aria-hidden="true">▾</span>
+    </h2>
+
+    <div id="flashSheets" class="collapsible max-w-3xl mx-auto px-6" aria-hidden="true">
       <div class="py-4">
         <p>Aquí irán flash sheets personalizados y disponibles. Puedes subir imágenes o descripciones según tu estilo.</p>
       </div>
@@ -85,28 +124,20 @@
 
   <!-- SCRIPT -->
   <script>
+    // --- Config ---
     const totalImages = 25;
-    const imagesPerPage = 10; // tamaño de página deseado
+    const imagesPerPage = 10;
+
+    // --- Estado ---
     let currentIndex = 0;
     let tattoosLoaded = false;
 
-    // Cerrar secciones colapsables al inicio
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.collapsible').forEach(section => {
-        section.classList.remove('open');
-      });
-    });
-
-    function toggleSection(id) {
-      const section = document.getElementById(id);
-      const wasOpen = section.classList.contains('open');
-      section.classList.toggle('open');
-
-      // Carga perezosa: primera vez que se abre "Tattoos"
-      if (!wasOpen && id === 'tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
-        tattoosLoaded = true;
-      }
+    // --- Utilidades ---
+    function toggleSectionElement(sectionEl, triggerEl) {
+      const isOpen = sectionEl.classList.contains('open');
+      sectionEl.classList.toggle('open');
+      sectionEl.setAttribute('aria-hidden', String(isOpen));
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', String(!isOpen));
     }
 
     function loadImages(from, to) {
@@ -115,7 +146,7 @@
         const img = document.createElement("img");
         img.src = `tattoos_comprimidas/${i}.png`;
         img.alt = `Tattoo ${i}`;
-        img.className = "rounded-xl shadow-md w-full cursor-pointer";
+        img.className = "rounded-xl shadow-md w-full";
         gallery.appendChild(img);
       }
     }
@@ -140,14 +171,48 @@
     function showLessImages() {
       const gallery = document.getElementById("gallery");
       const images = Array.from(gallery.querySelectorAll("img"));
-
-      // Dejar sólo las primeras imagesPerPage
       images.slice(imagesPerPage).forEach(img => img.remove());
 
       currentIndex = imagesPerPage;
       document.getElementById("loadMore").style.display = "inline";
       document.getElementById("showLess").classList.add("hidden");
     }
+
+    // --- Inicio ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Dejar colapsado al inicio
+      document.querySelectorAll('.collapsible').forEach(section => {
+        section.classList.remove('open');
+        section.setAttribute('aria-hidden', 'true');
+      });
+
+      // Listeners para toggles (click + Enter/Espacio)
+      document.querySelectorAll('[data-toggle="collapse"]').forEach(trigger => {
+        const targetSel = trigger.getAttribute('data-target');
+        const section = document.querySelector(targetSel);
+
+        const activate = () => {
+          // Carga perezosa de Tattoos 1ª vez
+          if (targetSel === '#tattoosSection' && !tattoosLoaded) {
+            loadMoreImages();
+            tattoosLoaded = true;
+          }
+          toggleSectionElement(section, trigger);
+        };
+
+        trigger.addEventListener('click', activate);
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activate();
+          }
+        });
+      });
+
+      // Botones de galería
+      document.getElementById('loadMore').addEventListener('click', loadMoreImages);
+      document.getElementById('showLess').addEventListener('click', showLessImages);
+    });
   </script>
 </body>
 </html>
