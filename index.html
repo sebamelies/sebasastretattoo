@@ -20,8 +20,6 @@
     }
     .collapsible.open { opacity: 1; }
 
-    .cursor-pointer { cursor: pointer; }
-
     /* Modal de imagen ampliada */
     .image-modal {
       position: fixed;
@@ -52,6 +50,8 @@
       display: block;
       width: 100%;
       height: auto;
+      background: #f2f2f2;
+      border-radius: 0.75rem;
     }
   </style>
 </head>
@@ -163,285 +163,261 @@
   <!-- SCRIPT -->
   <script type="module">
     // --- Config ---
-    const totalImages = 453;   // Tattoos
-    const imagesPerPage = 20;
+    const totalImages = 453, imagesPerPage = 20;   // Tattoos
+    const totalFlashImages = 115, flashPerPage = 20; // Flash sheets
+    const FLASH_DIR = 'flash_sheets_comprimidas';
+    const FLASH_EXTS = ['png','jpg','jpeg','webp'];
 
-    const totalFlashImages = 115;     // Flash sheets (ajusta al número real)
-    const flashPerPage = 20;
-    const FLASH_DIR = 'flash_sheets_comprimidas';        // carpeta real en el repo
-    const FLASH_EXTS = ['png', 'jpg', 'jpeg', 'webp'];   // fallback de extensión
+    // Placeholder 1x1 para lazy manual (Tattoos)
+    const LAZY_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
     // --- Estado ---
-    let currentIndex = 0;
-    let tattoosLoaded = false;
-
-    let currentFlashIndex = 0;
-    let flashLoaded = false;
+    let currentIndex = 0, tattoosLoaded = false;
+    let currentFlashIndex = 0, flashLoaded = false;
 
     // ====== Colapsables (ResizeObserver + max-height none al abrir) ======
     const resizeObservers = new Map();
-
     function ensureResizeObserver(sectionEl) {
       if (resizeObservers.has(sectionEl)) return;
       const ro = new ResizeObserver(() => {
         if (!sectionEl.classList.contains('open')) return;
         const mh = getComputedStyle(sectionEl).maxHeight;
-        if (mh !== 'none') {
-          sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-        }
+        if (mh !== 'none') sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
       });
       ro.observe(sectionEl);
       resizeObservers.set(sectionEl, ro);
     }
-
     function openSection(sectionEl, triggerEl) {
       ensureResizeObserver(sectionEl);
       sectionEl.classList.add('open');
-      sectionEl.setAttribute('aria-hidden', 'false');
-      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
-
+      sectionEl.setAttribute('aria-hidden','false');
+      triggerEl?.setAttribute('aria-expanded','true');
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-      const onEnd = (e) => {
+      const onEnd = (e)=>{
         if (e.propertyName !== 'max-height') return;
-        sectionEl.style.maxHeight = 'none'; // crecimiento libre tras la animación
+        sectionEl.style.maxHeight = 'none';
         sectionEl.removeEventListener('transitionend', onEnd);
       };
       sectionEl.addEventListener('transitionend', onEnd);
     }
-
     function closeSection(sectionEl, triggerEl) {
       const mh = getComputedStyle(sectionEl).maxHeight;
-      if (mh === 'none') {
-        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-        // Forzar reflow antes de llevar a 0
-        // eslint-disable-next-line no-unused-expressions
-        sectionEl.offsetHeight;
-      }
+      if (mh === 'none') { sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px'; sectionEl.offsetHeight; }
       sectionEl.classList.remove('open');
-      sectionEl.setAttribute('aria-hidden', 'true');
-      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
+      sectionEl.setAttribute('aria-hidden','true');
+      triggerEl?.setAttribute('aria-expanded','false');
       sectionEl.style.maxHeight = '0px';
     }
-
     function toggleSectionElement(sectionEl, triggerEl) {
-      const isOpen = sectionEl.classList.contains('open');
-      if (isOpen) closeSection(sectionEl, triggerEl);
-      else openSection(sectionEl, triggerEl);
+      sectionEl.classList.contains('open') ? closeSection(sectionEl, triggerEl) : openSection(sectionEl, triggerEl);
+    }
+
+    // ====== Lazy robusto (Tattoos) ======
+    const supportsNativeLazy = 'loading' in HTMLImageElement.prototype;
+    let io = null;
+    function ensureObserver() {
+      if (io || supportsNativeLazy) return;
+      if ('IntersectionObserver' in window) {
+        io = new IntersectionObserver((entries, obs) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              const img = e.target;
+              const src = img.getAttribute('data-src');
+              if (src) img.src = src;
+              obs.unobserve(img);
+            }
+          }
+        }, { rootMargin: '200px 0px' });
+      }
+    }
+    function observeIfNeeded(img) {
+      if (supportsNativeLazy) return;
+      ensureObserver();
+      if (io && img.hasAttribute('data-src')) io.observe(img);
+      else {
+        const src = img.getAttribute('data-src');
+        if (src) img.src = src;
+      }
+    }
+
+    // ====== Helpers de creación ======
+    function createTattooImg(i, eager) {
+      const img = document.createElement('img');
+      img.alt = `Tattoo ${i}`;
+      img.className = 'rounded-xl shadow-md w-full';
+      img.decoding = 'async';
+      if (eager) {
+        img.loading = 'eager';
+        img.src = `tattoos_comprimidas/${i}.png`;
+      } else {
+        img.loading = 'lazy';
+        img.src = LAZY_PLACEHOLDER;
+        img.setAttribute('data-src', `tattoos_comprimidas/${i}.png`);
+        observeIfNeeded(img);
+      }
+      return img;
+    }
+
+    // Fallback simplificado para Flash (fiable en móvil)
+    function createFlashImg(i, eager) {
+      const img = document.createElement('img');
+      img.alt = `Flash ${i}`;
+      img.className = 'rounded-xl shadow-md w-full';
+      img.decoding = 'async';
+      img.loading = eager ? 'eager' : 'lazy';
+
+      let extIdx = 0;
+      const setNextSrc = () => {
+        if (extIdx >= FLASH_EXTS.length) {
+          console.warn(`No se encontró archivo para Flash ${i} en ${FLASH_DIR} con extensiones ${FLASH_EXTS.join(', ')}`);
+          return;
+        }
+        img.src = `${FLASH_DIR}/${i}.${FLASH_EXTS[extIdx]}`;
+      };
+      img.onerror = () => { extIdx += 1; setNextSrc(); };
+      setNextSrc(); // primer intento
+
+      return img;
     }
 
     // ====== Galería Tattoos ======
     function loadImages(from, to) {
       const gallery = document.getElementById('gallery');
-      if (!gallery) return;
       const frag = document.createDocumentFragment();
-
       for (let i = from; i <= to && i <= totalImages; i++) {
-        const img = document.createElement('img');
-        img.src = `tattoos_comprimidas/${i}.png`;
-        img.alt = `Tattoo ${i}`;
-        img.className = 'rounded-xl shadow-md w-full';
-        img.loading = (i <= imagesPerPage) ? 'eager' : 'lazy';
-        img.decoding = 'async';
-        frag.appendChild(img);
+        const eager = i <= imagesPerPage; // primer lote eager
+        frag.appendChild(createTattooImg(i, eager));
       }
       gallery.appendChild(frag);
-
       const section = document.getElementById('tattoosSection');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
-
     function loadMoreImages() {
       const from = currentIndex + 1;
       const to = Math.min(currentIndex + imagesPerPage, totalImages);
       loadImages(from, to);
       currentIndex = to;
-
       const showLessBtn = document.getElementById('showLess');
       const loadMoreBtn = document.getElementById('loadMore');
       if (showLessBtn && currentIndex > imagesPerPage) showLessBtn.classList.remove('hidden');
       if (loadMoreBtn && currentIndex >= totalImages) loadMoreBtn.style.display = 'none';
     }
-
     function showLessImages() {
       const gallery = document.getElementById('gallery');
-      if (!gallery) return;
       const images = Array.from(gallery.querySelectorAll('img'));
       images.slice(imagesPerPage).forEach(img => img.remove());
       currentIndex = imagesPerPage;
-
-      const loadMoreBtn = document.getElementById('loadMore');
-      const showLessBtn = document.getElementById('showLess');
-      if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
-      if (showLessBtn) showLessBtn.classList.add('hidden');
-
+      document.getElementById('loadMore').style.display = 'inline';
+      document.getElementById('showLess').classList.add('hidden');
       const section = document.getElementById('tattoosSection');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
 
-    // ====== Galería Flash sheets (con fallback de extensión) ======
+    // ====== Galería Flash ======
     function loadFlash(from, to) {
       const gallery = document.getElementById('flashGallery');
-      if (!gallery) return;
       const frag = document.createDocumentFragment();
-
-      function appendWithFallback(i, extIdx = 0) {
-        if (extIdx >= FLASH_EXTS.length) {
-          console.warn(`No se encontró archivo para Flash ${i} (${FLASH_DIR}/${i}.*)`);
-          return;
-        }
-        const ext = FLASH_EXTS[extIdx];
-        const img = new Image();
-        img.alt = `Flash ${i}`;
-        img.className = 'rounded-xl shadow-md w-full';
-        img.loading = (i <= flashPerPage) ? 'eager' : 'lazy';
-        img.decoding = 'async';
-
-        img.onload = () => { frag.appendChild(img); };
-
-        img.onerror = () => { appendWithFallback(i, extIdx + 1); };
-
-        img.src = `${FLASH_DIR}/${i}.${ext}`;
-      }
-
       for (let i = from; i <= to && i <= totalFlashImages; i++) {
-        appendWithFallback(i);
+        const eager = i <= flashPerPage; // primer lote eager
+        frag.appendChild(createFlashImg(i, eager));
       }
       gallery.appendChild(frag);
-
       const section = document.getElementById('flashSheets');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
-
     function loadMoreFlash() {
       const from = currentFlashIndex + 1;
       const to = Math.min(currentFlashIndex + flashPerPage, totalFlashImages);
       loadFlash(from, to);
       currentFlashIndex = to;
-
       const showLessBtn = document.getElementById('flashShowLess');
       const loadMoreBtn = document.getElementById('flashLoadMore');
       if (showLessBtn && currentFlashIndex > flashPerPage) showLessBtn.classList.remove('hidden');
       if (loadMoreBtn && currentFlashIndex >= totalFlashImages) loadMoreBtn.style.display = 'none';
     }
-
     function showLessFlash() {
       const gallery = document.getElementById('flashGallery');
-      if (!gallery) return;
       const images = Array.from(gallery.querySelectorAll('img'));
       images.slice(flashPerPage).forEach(img => img.remove());
       currentFlashIndex = flashPerPage;
-
-      const loadMoreBtn = document.getElementById('flashLoadMore');
-      const showLessBtn = document.getElementById('flashShowLess');
-      if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
-      if (showLessBtn) showLessBtn.classList.add('hidden');
-
+      document.getElementById('flashLoadMore').style.display = 'inline';
+      document.getElementById('flashShowLess').classList.add('hidden');
       const section = document.getElementById('flashSheets');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
 
-    // --- Inicio: colapsables cerrados ---
+    // --- Inicialización: colapsables cerrados ---
     document.querySelectorAll('.collapsible').forEach(section => {
       section.classList.remove('open');
-      section.setAttribute('aria-hidden', 'true');
+      section.setAttribute('aria-hidden','true');
       section.style.maxHeight = '0px';
     });
 
     // Delegación de eventos para toggles
     document.addEventListener('click', (e) => {
-      const trigger = e.target.closest('[data-toggle="collapse"]');
-      if (!trigger) return;
-
+      const trigger = e.target.closest('[data-toggle="collapse"]'); if (!trigger) return;
       const targetSel = trigger.getAttribute('data-target');
-      const section = targetSel ? document.querySelector(targetSel) : null;
-      if (!section) return;
-
+      const section = document.querySelector(targetSel); if (!section) return;
       const willOpen = !section.classList.contains('open');
-
-      // Carga perezosa al abrir por primera vez
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
-        tattoosLoaded = true;
-      }
-      if (willOpen && targetSel === '#flashSheets' && !flashLoaded) {
-        loadMoreFlash();
-        flashLoaded = true;
-      }
-
+      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) { loadMoreImages(); tattoosLoaded = true; }
+      if (willOpen && targetSel === '#flashSheets'   && !flashLoaded)   { loadMoreFlash();   flashLoaded   = true; }
       toggleSectionElement(section, trigger);
     });
 
     // Accesibilidad: teclado (Enter o Espacio)
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]');
-      if (!trigger) return;
+      const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]'); if (!trigger) return;
       e.preventDefault();
-
       const targetSel = trigger.getAttribute('data-target');
-      const section = targetSel ? document.querySelector(targetSel) : null;
-      if (!section) return;
-
+      const section = document.querySelector(targetSel); if (!section) return;
       const willOpen = !section.classList.contains('open');
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
-        loadMoreImages();
-        tattoosLoaded = true;
-      }
-      if (willOpen && targetSel === '#flashSheets' && !flashLoaded) {
-        loadMoreFlash();
-        flashLoaded = true;
-      }
+      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) { loadMoreImages(); tattoosLoaded = true; }
+      if (willOpen && targetSel === '#flashSheets'   && !flashLoaded)   { loadMoreFlash();   flashLoaded   = true; }
       toggleSectionElement(section, trigger);
     });
 
     // Botones de galería
     document.getElementById('loadMore')?.addEventListener('click', loadMoreImages);
     document.getElementById('showLess')?.addEventListener('click', showLessImages);
-
     document.getElementById('flashLoadMore')?.addEventListener('click', loadMoreFlash);
     document.getElementById('flashShowLess')?.addEventListener('click', showLessFlash);
 
     // ===== Modal de imagen (ambas galerías) =====
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('imageModalContent');
-
     document.addEventListener('click', (e) => {
-      const img = e.target.closest('.gallery img');
-      if (!img) return;
-      modalImg.src = img.src;
+      const img = e.target.closest('.gallery img'); if (!img) return;
+      modalImg.src = img.getAttribute('data-src') || img.src;
       modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
+      modal.setAttribute('aria-hidden','false');
       document.body.style.overflow = 'hidden';
     });
-
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('aria-hidden','true');
         document.body.style.overflow = '';
       }
     });
-
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('open')) {
         modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('aria-hidden','true');
         document.body.style.overflow = '';
       }
     });
 
     // Depuración opcional
-    window.addEventListener('error', (e) => {
-      console.warn('Error JS:', e.message);
-    });
+    window.addEventListener('error', (e) => console.warn('Error JS:', e.message));
   </script>
 </body>
 </html>
