@@ -10,6 +10,7 @@
   <style>
     body { font-family: Helvetica, Arial, sans-serif; }
 
+    /* Colapsables con transición estable */
     .collapsible {
       max-height: 0;
       opacity: 0;
@@ -19,16 +20,31 @@
     }
     .collapsible.open { opacity: 1; }
 
+    .cursor-pointer { cursor: pointer; }
+
+    /* Modal de imagen ampliada */
     .image-modal {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.85);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999; opacity: 0; pointer-events: none;
-      transition: opacity .3s ease;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
     .image-modal.open { opacity: 1; pointer-events: auto; }
-    .image-modal img { max-width: 90%; max-height: 90%; border-radius: .75rem; box-shadow: 0 0 25px rgba(0,0,0,.7); cursor: zoom-out; }
+    .image-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 0.75rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+      cursor: zoom-out;
+    }
 
+    /* Galerías: reservar espacio para evitar cortes con lazy-loading */
     .gallery img {
       cursor: zoom-in;
       aspect-ratio: 1 / 1;
@@ -36,26 +52,36 @@
       display: block;
       width: 100%;
       height: auto;
-      background: #f2f2f2; /* skeleton suave mientras carga */
-      border-radius: .75rem;
     }
   </style>
 </head>
 <body class="bg-white text-black">
 
+  <!-- HEADER -->
   <header class="text-center pt-10 pb-4">
     <h1 class="text-4xl font-bold uppercase">sebastian sastre tattoo</h1>
-    <h2 class="text-2xl font-semibold mt-4 cursor-pointer inline-flex items-center gap-2 select-none"
-        data-toggle="collapse" data-target="#sobreMi" role="button" tabindex="0"
-        aria-controls="sobreMi" aria-expanded="false">Sobre mí <span aria-hidden="true">▾</span></h2>
+    <h2
+      class="text-2xl font-semibold mt-4 cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#sobreMi"
+      role="button"
+      tabindex="0"
+      aria-controls="sobreMi"
+      aria-expanded="false"
+    >
+      Sobre mí
+      <span aria-hidden="true">▾</span>
+    </h2>
   </header>
 
+  <!-- SOBRE MI -->
   <section id="sobreMi" class="collapsible max-w-3xl mx-auto px-6" aria-hidden="true">
     <div class="py-4">
       <p>Soy Sebastián, artista queer en Madrid que crea tatuajes con identidad, humor y crítica. Trabajo con valores inclusivos, dirigidos al público LGBT+.</p>
     </div>
   </section>
 
+  <!-- IMÁGENES FIJAS -->
   <section class="text-center px-4 py-6">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
       <img src="assets/tatuaje1.png" alt="Tattoo 1" class="rounded-xl shadow-md">
@@ -66,9 +92,18 @@
 
   <!-- TATTOOS -->
   <section class="text-center px-4 pb-10 space-y-4">
-    <h2 class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
-        data-toggle="collapse" data-target="#tattoosSection" role="button" tabindex="0"
-        aria-controls="tattoosSection" aria-expanded="false">Tattoos <span aria-hidden="true">▾</span></h2>
+    <h2
+      class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#tattoosSection"
+      role="button"
+      tabindex="0"
+      aria-controls="tattoosSection"
+      aria-expanded="false"
+    >
+      Tattoos
+      <span aria-hidden="true">▾</span>
+    </h2>
 
     <div id="tattoosSection" class="collapsible max-w-6xl mx-auto px-6" aria-hidden="true">
       <div class="py-4">
@@ -83,9 +118,18 @@
 
   <!-- FLASH SHEETS -->
   <section class="text-center px-4 pb-10 space-y-4 mt-10">
-    <h2 class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
-        data-toggle="collapse" data-target="#flashSheets" role="button" tabindex="0"
-        aria-controls="flashSheets" aria-expanded="false">Flash sheets <span aria-hidden="true">▾</span></h2>
+    <h2
+      class="text-2xl font-semibold cursor-pointer inline-flex items-center gap-2 select-none"
+      data-toggle="collapse"
+      data-target="#flashSheets"
+      role="button"
+      tabindex="0"
+      aria-controls="flashSheets"
+      aria-expanded="false"
+    >
+      Flash sheets
+      <span aria-hidden="true">▾</span>
+    </h2>
 
     <div id="flashSheets" class="collapsible max-w-6xl mx-auto px-6" aria-hidden="true">
       <div class="py-4">
@@ -98,6 +142,7 @@
     </div>
   </section>
 
+  <!-- CONTACTO -->
   <section id="contacto" class="px-6 py-10 text-center">
     <h2 class="text-2xl font-semibold mb-4">Contacto</h2>
     <p>Madrid, España</p>
@@ -105,260 +150,298 @@
     <p>Instagram: <a href="https://instagram.com/sebasastretattoo" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">@sebasastretattoo</a></p>
   </section>
 
-  <footer class="text-center text-sm text-gray-500 py-6">© 2025 sebastiansastretattoo</footer>
+  <!-- FOOTER -->
+  <footer class="text-center text-sm text-gray-500 py-6">
+    © 2025 sebastiansastretattoo
+  </footer>
 
+  <!-- Modal de imagen ampliada -->
   <div id="imageModal" class="image-modal" role="dialog" aria-modal="true" aria-hidden="true">
     <img id="imageModalContent" src="" alt="Imagen ampliada">
   </div>
 
+  <!-- SCRIPT -->
   <script type="module">
     // --- Config ---
-    const totalImages = 453, imagesPerPage = 20;
-    const totalFlashImages = 115, flashPerPage = 20;
-    const FLASH_DIR = 'flash_sheets_comprimidas';
-    const FLASH_EXTS = ['png','jpg','jpeg','webp'];
+    const totalImages = 453;   // Tattoos
+    const imagesPerPage = 20;
 
-    // Placeholder transparente 1x1 (para lazy manual)
-    const LAZY_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+    const totalFlashImages = 115;     // Flash sheets (ajusta al número real)
+    const flashPerPage = 20;
+    const FLASH_DIR = 'flash_sheets_comprimidas';        // carpeta real en el repo
+    const FLASH_EXTS = ['png', 'jpg', 'jpeg', 'webp'];   // fallback de extensión
 
     // --- Estado ---
-    let currentIndex = 0, tattoosLoaded = false;
-    let currentFlashIndex = 0, flashLoaded = false;
+    let currentIndex = 0;
+    let tattoosLoaded = false;
 
-    // ====== ResizeObserver para colapsables ======
+    let currentFlashIndex = 0;
+    let flashLoaded = false;
+
+    // ====== Colapsables (ResizeObserver + max-height none al abrir) ======
     const resizeObservers = new Map();
+
     function ensureResizeObserver(sectionEl) {
       if (resizeObservers.has(sectionEl)) return;
       const ro = new ResizeObserver(() => {
         if (!sectionEl.classList.contains('open')) return;
         const mh = getComputedStyle(sectionEl).maxHeight;
-        if (mh !== 'none') sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+        if (mh !== 'none') {
+          sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+        }
       });
       ro.observe(sectionEl);
       resizeObservers.set(sectionEl, ro);
     }
+
     function openSection(sectionEl, triggerEl) {
       ensureResizeObserver(sectionEl);
       sectionEl.classList.add('open');
-      sectionEl.setAttribute('aria-hidden','false');
-      triggerEl?.setAttribute('aria-expanded','true');
+      sectionEl.setAttribute('aria-hidden', 'false');
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
+
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-      const onEnd = (e)=>{
+      const onEnd = (e) => {
         if (e.propertyName !== 'max-height') return;
-        sectionEl.style.maxHeight = 'none';
+        sectionEl.style.maxHeight = 'none'; // crecimiento libre tras la animación
         sectionEl.removeEventListener('transitionend', onEnd);
       };
       sectionEl.addEventListener('transitionend', onEnd);
     }
+
     function closeSection(sectionEl, triggerEl) {
       const mh = getComputedStyle(sectionEl).maxHeight;
-      if (mh === 'none') { sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px'; sectionEl.offsetHeight; }
+      if (mh === 'none') {
+        sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
+        // Forzar reflow antes de llevar a 0
+        // eslint-disable-next-line no-unused-expressions
+        sectionEl.offsetHeight;
+      }
       sectionEl.classList.remove('open');
-      sectionEl.setAttribute('aria-hidden','true');
-      triggerEl?.setAttribute('aria-expanded','false');
+      sectionEl.setAttribute('aria-hidden', 'true');
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
       sectionEl.style.maxHeight = '0px';
     }
+
     function toggleSectionElement(sectionEl, triggerEl) {
-      sectionEl.classList.contains('open') ? closeSection(sectionEl, triggerEl) : openSection(sectionEl, triggerEl);
-    }
-
-    // ====== Lazy loader robusto con IntersectionObserver ======
-    const supportsNativeLazy = 'loading' in HTMLImageElement.prototype;
-    let io = null;
-    function ensureObserver() {
-      if (io || supportsNativeLazy) return;
-      if ('IntersectionObserver' in window) {
-        io = new IntersectionObserver((entries, obs) => {
-          for (const e of entries) {
-            if (e.isIntersecting) {
-              const img = e.target;
-              const src = img.getAttribute('data-src');
-              if (src) img.src = src;
-              obs.unobserve(img);
-            }
-          }
-        }, { rootMargin: '200px 0px' });
-      }
-    }
-    function observeIfNeeded(img) {
-      if (supportsNativeLazy) return;  // el navegador ya lo hace
-      ensureObserver();
-      if (io && img.hasAttribute('data-src')) io.observe(img);
-      else if (!supportsNativeLazy) {
-        // Fallback sin IO: carga directa
-        const src = img.getAttribute('data-src');
-        if (src) img.src = src;
-      }
-    }
-
-    // ====== Helpers para crear imágenes ======
-    function createTattooImg(i, eager) {
-      const img = document.createElement('img');
-      img.alt = `Tattoo ${i}`;
-      img.className = 'rounded-xl shadow-md w-full';
-      img.decoding = 'async';
-      if (eager) {
-        img.loading = 'eager';
-        img.src = `tattoos_comprimidas/${i}.png`;
-      } else {
-        img.loading = 'lazy';
-        img.src = LAZY_PLACEHOLDER;
-        img.setAttribute('data-src', `tattoos_comprimidas/${i}.png`);
-        observeIfNeeded(img);
-      }
-      return img;
-    }
-
-    function createFlashImg(i, eager) {
-      // Con fallback de extensión
-      const img = document.createElement('img');
-      img.alt = `Flash ${i}`;
-      img.className = 'rounded-xl shadow-md w-full';
-      img.decoding = 'async';
-
-      const trySrc = (extIdx=0) => {
-        if (extIdx >= FLASH_EXTS.length) return;
-        const realSrc = `${FLASH_DIR}/${i}.${FLASH_EXTS[extIdx]}`;
-        const tester = new Image();
-        tester.onload = () => {
-          if (eager || supportsNativeLazy) {
-            img.src = realSrc;
-          } else {
-            img.src = LAZY_PLACEHOLDER;
-            img.setAttribute('data-src', realSrc);
-            observeIfNeeded(img);
-          }
-        };
-        tester.onerror = () => trySrc(extIdx+1);
-        tester.src = realSrc + `?v=${Date.now()}`; // evita caché en la prueba
-      };
-      if (eager) img.loading = 'eager'; else img.loading = 'lazy';
-      trySrc(0);
-      return img;
+      const isOpen = sectionEl.classList.contains('open');
+      if (isOpen) closeSection(sectionEl, triggerEl);
+      else openSection(sectionEl, triggerEl);
     }
 
     // ====== Galería Tattoos ======
     function loadImages(from, to) {
       const gallery = document.getElementById('gallery');
+      if (!gallery) return;
       const frag = document.createDocumentFragment();
+
       for (let i = from; i <= to && i <= totalImages; i++) {
-        const eager = i <= imagesPerPage; // primer lote eager
-        frag.appendChild(createTattooImg(i, eager));
+        const img = document.createElement('img');
+        img.src = `tattoos_comprimidas/${i}.png`;
+        img.alt = `Tattoo ${i}`;
+        img.className = 'rounded-xl shadow-md w-full';
+        img.loading = (i <= imagesPerPage) ? 'eager' : 'lazy';
+        img.decoding = 'async';
+        frag.appendChild(img);
       }
       gallery.appendChild(frag);
+
       const section = document.getElementById('tattoosSection');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
+
     function loadMoreImages() {
       const from = currentIndex + 1;
       const to = Math.min(currentIndex + imagesPerPage, totalImages);
       loadImages(from, to);
       currentIndex = to;
+
       const showLessBtn = document.getElementById('showLess');
       const loadMoreBtn = document.getElementById('loadMore');
       if (showLessBtn && currentIndex > imagesPerPage) showLessBtn.classList.remove('hidden');
       if (loadMoreBtn && currentIndex >= totalImages) loadMoreBtn.style.display = 'none';
     }
+
     function showLessImages() {
       const gallery = document.getElementById('gallery');
+      if (!gallery) return;
       const images = Array.from(gallery.querySelectorAll('img'));
       images.slice(imagesPerPage).forEach(img => img.remove());
       currentIndex = imagesPerPage;
-      document.getElementById('loadMore').style.display = 'inline';
-      document.getElementById('showLess').classList.add('hidden');
+
+      const loadMoreBtn = document.getElementById('loadMore');
+      const showLessBtn = document.getElementById('showLess');
+      if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
+      if (showLessBtn) showLessBtn.classList.add('hidden');
+
       const section = document.getElementById('tattoosSection');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
 
-    // ====== Galería Flash ======
+    // ====== Galería Flash sheets (con fallback de extensión) ======
     function loadFlash(from, to) {
       const gallery = document.getElementById('flashGallery');
+      if (!gallery) return;
       const frag = document.createDocumentFragment();
+
+      function appendWithFallback(i, extIdx = 0) {
+        if (extIdx >= FLASH_EXTS.length) {
+          console.warn(`No se encontró archivo para Flash ${i} (${FLASH_DIR}/${i}.*)`);
+          return;
+        }
+        const ext = FLASH_EXTS[extIdx];
+        const img = new Image();
+        img.alt = `Flash ${i}`;
+        img.className = 'rounded-xl shadow-md w-full';
+        img.loading = (i <= flashPerPage) ? 'eager' : 'lazy';
+        img.decoding = 'async';
+
+        img.onload = () => { frag.appendChild(img); };
+
+        img.onerror = () => { appendWithFallback(i, extIdx + 1); };
+
+        img.src = `${FLASH_DIR}/${i}.${ext}`;
+      }
+
       for (let i = from; i <= to && i <= totalFlashImages; i++) {
-        const eager = i <= flashPerPage;
-        frag.appendChild(createFlashImg(i, eager));
+        appendWithFallback(i);
       }
       gallery.appendChild(frag);
+
       const section = document.getElementById('flashSheets');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
+
     function loadMoreFlash() {
       const from = currentFlashIndex + 1;
       const to = Math.min(currentFlashIndex + flashPerPage, totalFlashImages);
       loadFlash(from, to);
       currentFlashIndex = to;
+
       const showLessBtn = document.getElementById('flashShowLess');
       const loadMoreBtn = document.getElementById('flashLoadMore');
       if (showLessBtn && currentFlashIndex > flashPerPage) showLessBtn.classList.remove('hidden');
       if (loadMoreBtn && currentFlashIndex >= totalFlashImages) loadMoreBtn.style.display = 'none';
     }
+
     function showLessFlash() {
       const gallery = document.getElementById('flashGallery');
+      if (!gallery) return;
       const images = Array.from(gallery.querySelectorAll('img'));
       images.slice(flashPerPage).forEach(img => img.remove());
       currentFlashIndex = flashPerPage;
-      document.getElementById('flashLoadMore').style.display = 'inline';
-      document.getElementById('flashShowLess').classList.add('hidden');
+
+      const loadMoreBtn = document.getElementById('flashLoadMore');
+      const showLessBtn = document.getElementById('flashShowLess');
+      if (loadMoreBtn) loadMoreBtn.style.display = 'inline';
+      if (showLessBtn) showLessBtn.classList.add('hidden');
+
       const section = document.getElementById('flashSheets');
       if (section.classList.contains('open') && getComputedStyle(section).maxHeight !== 'none') {
         section.style.maxHeight = section.scrollHeight + 'px';
       }
     }
 
-    // --- Inicialización ---
+    // --- Inicio: colapsables cerrados ---
     document.querySelectorAll('.collapsible').forEach(section => {
       section.classList.remove('open');
-      section.setAttribute('aria-hidden','true');
+      section.setAttribute('aria-hidden', 'true');
       section.style.maxHeight = '0px';
     });
 
+    // Delegación de eventos para toggles
     document.addEventListener('click', (e) => {
-      const trigger = e.target.closest('[data-toggle="collapse"]'); if (!trigger) return;
+      const trigger = e.target.closest('[data-toggle="collapse"]');
+      if (!trigger) return;
+
       const targetSel = trigger.getAttribute('data-target');
-      const section = document.querySelector(targetSel); if (!section) return;
+      const section = targetSel ? document.querySelector(targetSel) : null;
+      if (!section) return;
+
       const willOpen = !section.classList.contains('open');
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) { loadMoreImages(); tattoosLoaded = true; }
-      if (willOpen && targetSel === '#flashSheets'   && !flashLoaded)   { loadMoreFlash();   flashLoaded   = true; }
+
+      // Carga perezosa al abrir por primera vez
+      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
+        loadMoreImages();
+        tattoosLoaded = true;
+      }
+      if (willOpen && targetSel === '#flashSheets' && !flashLoaded) {
+        loadMoreFlash();
+        flashLoaded = true;
+      }
+
       toggleSectionElement(section, trigger);
     });
 
+    // Accesibilidad: teclado (Enter o Espacio)
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]'); if (!trigger) return;
+      const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]');
+      if (!trigger) return;
       e.preventDefault();
+
       const targetSel = trigger.getAttribute('data-target');
-      const section = document.querySelector(targetSel); if (!section) return;
+      const section = targetSel ? document.querySelector(targetSel) : null;
+      if (!section) return;
+
       const willOpen = !section.classList.contains('open');
-      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) { loadMoreImages(); tattoosLoaded = true; }
-      if (willOpen && targetSel === '#flashSheets'   && !flashLoaded)   { loadMoreFlash();   flashLoaded   = true; }
+      if (willOpen && targetSel === '#tattoosSection' && !tattoosLoaded) {
+        loadMoreImages();
+        tattoosLoaded = true;
+      }
+      if (willOpen && targetSel === '#flashSheets' && !flashLoaded) {
+        loadMoreFlash();
+        flashLoaded = true;
+      }
       toggleSectionElement(section, trigger);
     });
 
+    // Botones de galería
     document.getElementById('loadMore')?.addEventListener('click', loadMoreImages);
     document.getElementById('showLess')?.addEventListener('click', showLessImages);
+
     document.getElementById('flashLoadMore')?.addEventListener('click', loadMoreFlash);
     document.getElementById('flashShowLess')?.addEventListener('click', showLessFlash);
 
-    // Modal
+    // ===== Modal de imagen (ambas galerías) =====
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('imageModalContent');
+
     document.addEventListener('click', (e) => {
-      const img = e.target.closest('.gallery img'); if (!img) return;
-      modalImg.src = img.getAttribute('data-src') || img.src;
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+      const img = e.target.closest('.gallery img');
+      if (!img) return;
+      modalImg.src = img.src;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
     });
-    modal.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }});
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('open')) { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }});
 
-    // Evita errores silenciosos
-    window.addEventListener('error', (e)=>console.warn('Error JS:', e.message));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Depuración opcional
+    window.addEventListener('error', (e) => {
+      console.warn('Error JS:', e.message);
+    });
   </script>
 </body>
 </html>
