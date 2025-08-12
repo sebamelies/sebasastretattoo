@@ -44,7 +44,7 @@
       cursor: zoom-out;
     }
 
-    /* Galerías: reserva espacio para evitar cortes con lazy-loading */
+    /* Galerías: reservar espacio para evitar cortes con lazy-loading */
     .gallery img {
       cursor: zoom-in;
       aspect-ratio: 1 / 1;
@@ -160,14 +160,16 @@
     <img id="imageModalContent" src="" alt="Imagen ampliada">
   </div>
 
-  <!-- SCRIPT (módulo para evitar colisiones) -->
+  <!-- SCRIPT -->
   <script type="module">
     // --- Config ---
-    const totalImages = 453;         // Tattoos
+    const totalImages = 453;   // Tattoos
     const imagesPerPage = 20;
 
-    const totalFlashImages = 115;    // <<< Ajusta a tu cantidad real de flash sheets
+    const totalFlashImages = 115;     // Flash sheets (ajusta al número real)
     const flashPerPage = 20;
+    const FLASH_DIR = 'flash_sheets_comprimidas';        // carpeta real en el repo
+    const FLASH_EXTS = ['png', 'jpg', 'jpeg', 'webp'];   // fallback de extensión
 
     // --- Estado ---
     let currentIndex = 0;
@@ -197,10 +199,11 @@
       sectionEl.classList.add('open');
       sectionEl.setAttribute('aria-hidden', 'false');
       if (triggerEl) triggerEl.setAttribute('aria-expanded', 'true');
+
       sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
       const onEnd = (e) => {
         if (e.propertyName !== 'max-height') return;
-        sectionEl.style.maxHeight = 'none';
+        sectionEl.style.maxHeight = 'none'; // crecimiento libre tras la animación
         sectionEl.removeEventListener('transitionend', onEnd);
       };
       sectionEl.addEventListener('transitionend', onEnd);
@@ -210,7 +213,9 @@
       const mh = getComputedStyle(sectionEl).maxHeight;
       if (mh === 'none') {
         sectionEl.style.maxHeight = sectionEl.scrollHeight + 'px';
-        sectionEl.offsetHeight; // reflow
+        // Forzar reflow antes de llevar a 0
+        // eslint-disable-next-line no-unused-expressions
+        sectionEl.offsetHeight;
       }
       sectionEl.classList.remove('open');
       sectionEl.setAttribute('aria-hidden', 'true');
@@ -229,6 +234,7 @@
       const gallery = document.getElementById('gallery');
       if (!gallery) return;
       const frag = document.createDocumentFragment();
+
       for (let i = from; i <= to && i <= totalImages; i++) {
         const img = document.createElement('img');
         img.src = `tattoos_comprimidas/${i}.png`;
@@ -276,19 +282,33 @@
       }
     }
 
-    // ====== Galería Flash sheets ======
+    // ====== Galería Flash sheets (con fallback de extensión) ======
     function loadFlash(from, to) {
       const gallery = document.getElementById('flashGallery');
       if (!gallery) return;
       const frag = document.createDocumentFragment();
-      for (let i = from; i <= to && i <= totalFlashImages; i++) {
-        const img = document.createElement('img');
-        img.src = `flash_sheets_comprimidas/${i}.png`;   /* ajusta la carpeta si usas otra */
+
+      function appendWithFallback(i, extIdx = 0) {
+        if (extIdx >= FLASH_EXTS.length) {
+          console.warn(`No se encontró archivo para Flash ${i} (${FLASH_DIR}/${i}.*)`);
+          return;
+        }
+        const ext = FLASH_EXTS[extIdx];
+        const img = new Image();
         img.alt = `Flash ${i}`;
         img.className = 'rounded-xl shadow-md w-full';
         img.loading = (i <= flashPerPage) ? 'eager' : 'lazy';
         img.decoding = 'async';
-        frag.appendChild(img);
+
+        img.onload = () => { frag.appendChild(img); };
+
+        img.onerror = () => { appendWithFallback(i, extIdx + 1); };
+
+        img.src = `${FLASH_DIR}/${i}.${ext}`;
+      }
+
+      for (let i = from; i <= to && i <= totalFlashImages; i++) {
+        appendWithFallback(i);
       }
       gallery.appendChild(frag);
 
@@ -339,6 +359,7 @@
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-toggle="collapse"]');
       if (!trigger) return;
+
       const targetSel = trigger.getAttribute('data-target');
       const section = targetSel ? document.querySelector(targetSel) : null;
       if (!section) return;
@@ -364,6 +385,7 @@
       const trigger = document.activeElement?.closest?.('[data-toggle="collapse"]');
       if (!trigger) return;
       e.preventDefault();
+
       const targetSel = trigger.getAttribute('data-target');
       const section = targetSel ? document.querySelector(targetSel) : null;
       if (!section) return;
@@ -416,6 +438,7 @@
       }
     });
 
+    // Depuración opcional
     window.addEventListener('error', (e) => {
       console.warn('Error JS:', e.message);
     });
