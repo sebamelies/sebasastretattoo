@@ -283,7 +283,7 @@
       const frag = document.createDocumentFragment();
       for (let i = from; i <= to && i <= totalFlashImages; i++) {
         const img = document.createElement('img');
-        img.src = `flash_comprimidas/${i}.png`;   /* ajusta la carpeta si usas otra */
+        img.src = `flash_sheets_comprimidas/${i}.png`;   /* ajusta la carpeta si usas otra */
         img.alt = `Flash ${i}`;
         img.className = 'rounded-xl shadow-md w-full';
         img.loading = (i <= flashPerPage) ? 'eager' : 'lazy';
