@@ -212,11 +212,10 @@
       sectionEl.classList.contains('open') ? closeSection(sectionEl, triggerEl) : openSection(sectionEl, triggerEl);
     }
 
-    // ====== Lazy robusto (Tattoos) ======
-    const supportsNativeLazy = 'loading' in HTMLImageElement.prototype;
+    // ====== Lazy (Tattoos) - opción 1: usar src real si hay lazy nativo ======
     let io = null;
     function ensureObserver() {
-      if (io || supportsNativeLazy) return;
+      if (io) return;
       if ('IntersectionObserver' in window) {
         io = new IntersectionObserver((entries, obs) => {
           for (const e of entries) {
@@ -231,12 +230,14 @@
       }
     }
     function observeIfNeeded(img) {
-      if (supportsNativeLazy) return;
-      ensureObserver();
-      if (io && img.hasAttribute('data-src')) io.observe(img);
-      else {
-        const src = img.getAttribute('data-src');
-        if (src) img.src = src;
+      // Solo observar si usamos placeholder + data-src (fallback)
+      if (img.hasAttribute('data-src')) {
+        ensureObserver();
+        if (io) io.observe(img);
+        else {
+          const src = img.getAttribute('data-src');
+          if (src) img.src = src;
+        }
       }
     }
 
@@ -246,14 +247,25 @@
       img.alt = `Tattoo ${i}`;
       img.className = 'rounded-xl shadow-md w-full';
       img.decoding = 'async';
+
+      const realSrc = `tattoos_comprimidas/${i}.png`;
+
       if (eager) {
+        // Primer lote: carga inmediata
         img.loading = 'eager';
-        img.src = `tattoos_comprimidas/${i}.png`;
+        img.src = realSrc;
       } else {
-        img.loading = 'lazy';
-        img.src = LAZY_PLACEHOLDER;
-        img.setAttribute('data-src', `tattoos_comprimidas/${i}.png`);
-        observeIfNeeded(img);
+        if ('loading' in HTMLImageElement.prototype) {
+          // Soporte nativo de lazy: asigna el src real y deja que el navegador gestione el lazy
+          img.loading = 'lazy';
+          img.src = realSrc;
+        } else {
+          // Fallback: placeholder + data-src + IntersectionObserver
+          img.loading = 'lazy';
+          img.src = LAZY_PLACEHOLDER;
+          img.setAttribute('data-src', realSrc);
+          observeIfNeeded(img);
+        }
       }
       return img;
     }
