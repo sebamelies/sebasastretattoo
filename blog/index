@@ -1,0 +1,181 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Blog de tatuajes en Madrid | Sebastián Sastre Tattoo
+  </title>
+
+  <meta
+    name="description"
+    content="Blog de Sebastián Sastre Tattoo sobre tatuajes pequeños, tatuajes de color, diseños, ideas y consejos para tatuarse en Madrid."
+  >
+
+  <meta
+    name="robots"
+    content="index, follow"
+  >
+
+  <link
+    rel="canonical"
+    href="https://sebasastretattoo.com/blog/"
+  >
+
+  <!-- OPEN GRAPH -->
+
+  <meta
+    property="og:type"
+    content="website"
+  >
+
+  <meta
+    property="og:title"
+    content="Blog de tatuajes en Madrid | Sebastián Sastre Tattoo"
+  >
+
+  <meta
+    property="og:description"
+    content="Ideas, consejos y artículos sobre tatuajes pequeños, color y diseños en Madrid."
+  >
+
+  <meta
+    property="og:url"
+    content="https://sebasastretattoo.com/blog/"
+  >
+
+  <meta
+    property="og:site_name"
+    content="Sebastián Sastre Tattoo"
+  >
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+  </style>
+
+</head>
+
+
+<body class="bg-white text-black">
+
+
+  <!-- HEADER -->
+
+  <header class="text-center pt-10 pb-8 px-6">
+
+    <a
+      href="../index.html"
+      class="text-sm underline text-blue-600"
+    >
+      Sebastián Sastre Tattoo
+    </a>
+
+    <h1 class="text-4xl md:text-5xl font-bold mt-6">
+      Blog
+    </h1>
+
+    <p class="max-w-2xl mx-auto mt-4 text-lg leading-relaxed">
+      Ideas, consejos y recomendaciones sobre tatuajes,
+      diseños, color y el mundo del tattoo en Madrid.
+    </p>
+
+  </header>
+
+
+  <!-- ARTICLES -->
+
+  <main class="max-w-5xl mx-auto px-6 pb-16">
+
+    <section>
+
+      <h2 class="text-2xl font-semibold mb-8">
+        Artículos
+      </h2>
+
+
+      <!-- ARTICLE CARD -->
+
+      <article
+        class="border border-gray-200 rounded-2xl p-6 md:p-8"
+      >
+
+        <p class="text-sm text-gray-500 mb-3">
+          28 de septiembre de 2026
+        </p>
+
+        <h3 class="text-2xl md:text-3xl font-bold mb-4">
+
+          <a
+            href="tatuajes-pequenos-madrid.html"
+            class="underline"
+          >
+            Tatuajes pequeños en Madrid: ideas y consejos para elegir el tuyo
+          </a>
+
+        </h3>
+
+        <p class="leading-relaxed mb-6">
+          Descubre qué tener en cuenta antes de hacerte un tatuaje pequeño:
+          tamaño, diseño, ubicación, color y cómo conseguir que el tatuaje
+          mantenga su personalidad con el paso del tiempo.
+        </p>
+
+        <a
+          href="tatuajes-pequenos-madrid.html"
+          class="inline-block underline text-blue-600"
+        >
+          Leer artículo →
+        </a>
+
+      </article>
+
+    </section>
+
+
+    <!-- BACK TO WEBSITE -->
+
+    <div class="mt-12">
+
+      <a
+        href="../index.html"
+        class="underline text-blue-600"
+      >
+        ← Volver a la web
+      </a>
+
+    </div>
+
+  </main>
+
+
+  <!-- FOOTER -->
+
+  <footer
+    class="text-center text-sm text-gray-500 py-8 border-t"
+  >
+
+    <p>
+      © 2026 Sebastián Sastre Tattoo
+    </p>
+
+  </footer>
+
+
+</body>
+
+</html>
+```
